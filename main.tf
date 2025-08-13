@@ -11,7 +11,7 @@ locals {
   certificate_backends           = ["ACM", "SSM"]
   saml_provider_arn              = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn     = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
-  self_service_saml_provider_arn = local.self_service_portal_enabled ? var.self_service_saml_provider_arn : null
+  self_service_saml_provider_arn = local.self_service_portal_enabled ? try(aws_iam_saml_provider.default_self_service_portal[0].arn, var.self_service_saml_provider_arn) : null
   cloudwatch_log_group           = local.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream          = local.logging_enabled ? var.logging_stream_name : null
   ca_common_name                 = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
@@ -147,6 +147,15 @@ resource "aws_iam_saml_provider" "default" {
 
   name                   = module.this.id
   saml_metadata_document = var.saml_metadata_document
+
+  tags = module.this.tags
+}
+
+resource "aws_iam_saml_provider" "default_self_service_portal" {
+  count = local.enabled && var.self_service_saml_metadata_document != null ? 1 : 0
+
+  name                   = "${module.this.id}-self-service-portal"
+  saml_metadata_document = var.self_service_saml_metadata_document
 
   tags = module.this.tags
 }

@@ -43,6 +43,12 @@ variable "saml_metadata_document" {
   type        = string
 }
 
+variable "self_service_saml_metadata_document" {
+  default     = null
+  description = "Optional SAML metadata document for Self Service Portal URL. Must include this or `self_service_saml_provider_arn`"
+  type        = string
+}
+
 variable "saml_provider_arn" {
   default     = null
   description = "Optional SAML provider ARN. Must include this or `saml_metadata_document`"
